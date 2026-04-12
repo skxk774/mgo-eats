@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 
 function App() {
   const [loading, setLoading] = useState(true);
+  const [orderDone, setOrderDone] = useState(false);
   const [cart, setCart] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [animItem, setAnimItem] = useState(null);
@@ -69,12 +70,20 @@ function App() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ items: cart, name, phone, address })
     }).then(() => {
-      alert("Заказ отправлен!");
-      setCart([]);
-      setShowForm(false);
+      setOrderDone(true);
+
+      setTimeout(() => {
+        setOrderDone(false);
+        setCart([]);
+        setShowForm(false);
+        setName("");
+        setPhone("");
+        setAddress("");
+      }, 3000);
     });
   };
 
+  // Splash экран
   if (loading) {
     return (
       <div style={{
@@ -93,17 +102,35 @@ function App() {
     );
   }
 
+  // Экран после заказа
+  if (orderDone) {
+    return (
+      <div style={{
+        height: "100vh",
+        background: "#FFF8E1",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        textAlign: "center"
+      }}>
+        <motion.h2 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}>
+          🍳 Ваш заказ готовится...
+        </motion.h2>
+
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}>
+          📞 С вами скоро свяжутся
+        </motion.p>
+      </div>
+    );
+  }
+
   return (
     <div style={{ paddingBottom: "120px", background: "#FFF8E1", minHeight: "100vh" }}>
       <h1 style={{ textAlign: "center" }}>🍔 MGO Eats</h1>
 
-      {/* КАТЕГОРИИ */}
-      <div style={{
-        display: "flex",
-        gap: "10px",
-        overflowX: "auto",
-        padding: "10px"
-      }}>
+      {/* Категории */}
+      <div style={{ display: "flex", gap: "10px", overflowX: "auto", padding: "10px" }}>
         {categories.map(cat => (
           <button key={cat} onClick={() => setCategory(cat)} style={{
             padding: "8px 12px",
@@ -116,7 +143,7 @@ function App() {
         ))}
       </div>
 
-      {/* МЕНЮ */}
+      {/* Меню */}
       <div style={{
         display: "grid",
         gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
@@ -168,7 +195,7 @@ function App() {
         })}
       </div>
 
-      {/* КОРЗИНА */}
+      {/* Корзина */}
       {cart.length > 0 && (
         <div style={{
           position: "fixed",
@@ -176,12 +203,22 @@ function App() {
           left: 0,
           right: 0,
           background: "#fff",
-          padding: "15px"
+          padding: "15px",
+          boxShadow: "0 -3px 10px rgba(0,0,0,0.2)"
         }}>
-          <h3>🛒 {cart.length} | {totalPrice} сом</h3>
+          <h3>🛒 {cart.length} товаров | {totalPrice} сом</h3>
 
           {!showForm && (
-            <button onClick={() => setShowForm(true)}>Оформить заказ</button>
+            <button onClick={() => setShowForm(true)} style={{
+              width: "100%",
+              padding: "12px",
+              background: "#00C853",
+              color: "#fff",
+              border: "none",
+              borderRadius: "10px"
+            }}>
+              Оформить заказ
+            </button>
           )}
 
           {showForm && (
@@ -189,7 +226,18 @@ function App() {
               <input placeholder="Имя" value={name} onChange={e => setName(e.target.value)} />
               <input placeholder="Телефон" value={phone} onChange={e => setPhone(e.target.value)} />
               <input placeholder="Адрес" value={address} onChange={e => setAddress(e.target.value)} />
-              <button onClick={sendOrder}>Подтвердить</button>
+
+              <button onClick={sendOrder} style={{
+                width: "100%",
+                marginTop: "10px",
+                padding: "12px",
+                background: "#2962FF",
+                color: "#fff",
+                border: "none",
+                borderRadius: "10px"
+              }}>
+                Подтвердить
+              </button>
             </div>
           )}
         </div>
