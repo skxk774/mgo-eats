@@ -65,24 +65,51 @@ function App() {
 
   const totalPrice = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
-  const sendOrder = () => {
-    fetch("http://localhost:5000/order", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ items: cart, name, phone, address })
-    }).then(() => {
-      setOrderDone(true);
+  const sendOrder = async () => {
+  try {
+    if (!name || !phone || !address) {
+      alert("Заполните все поля");
+      return;
+    }
 
-      setTimeout(() => {
-        setOrderDone(false);
-        setCart([]);
-        setShowForm(false);
-        setName("");
-        setPhone("");
-        setAddress("");
-      }, 3000);
-    });
-  };
+    alert("Отправляем заказ...");
+
+    const response = await fetch(
+      "https://mgo-eats-1.onrender.com/order",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          items: cart,
+          name,
+          phone,
+          address
+        })
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Ошибка сервера");
+    }
+
+    setOrderDone(true);
+
+    setTimeout(() => {
+      setOrderDone(false);
+      setCart([]);
+      setShowForm(false);
+      setName("");
+      setPhone("");
+      setAddress("");
+    }, 3000);
+
+  } catch (error) {
+    console.error(error);
+    alert("Ошибка отправки заказа");
+  }
+};
 
   // Splash экран
   if (loading) {
